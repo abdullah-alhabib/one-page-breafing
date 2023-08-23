@@ -57,9 +57,6 @@ def main():
             for i in range(len(st.session_state['generated'])-1, -1, -1):
                 st.info(st.session_state["past"][i], icon="🧐")
                 st.success(st.session_state["generated"][i], icon="🤖")
-    else :
-        st.write("Bro you have to provide api key!")
-
 if __name__ == '__main__':
     st.set_page_config(page_title="Chatbot",layout="centered")
     session_initilizer= initializer()
