@@ -40,10 +40,12 @@ def main():
                 prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE,
                 memory=st.session_state.entity_memory
             )
+        st.header("Ask anything..")
         user_input = st.text_input("You: ", st.session_state["input"],key="input",
         placeholder="Your Chatbot friend! Ask away ...",label_visibility='hidden')
 
         if user_input:
+            st.write("Running...")
             output = Conversation.run(input=user_input)
             st.session_state.past.append(user_input)
             st.session_state.generated.append(output)
