@@ -17,39 +17,43 @@ def initializer():
         # To store the current user input
         st.session_state["input"] = ""
     if "api_key" not in st.session_state:
-        st.session_state["api_key"]= "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"
+        st.session_state["api_key"]= ""
     return True
 
 
 def main():
     st.title("Bohakooom GPT")
     model = 'gpt-3.5-turbo'
-    llmObj = ChatOpenAI(openai_api_key=st.session_state["api_key"],
-    model_name=model)
+    api_key = st.text_input(label="API Key",key="api_key", placeholder="Enter Your API key ",label_visibility='hidden', type="password")
+   
+    if api_key:
+        llmObj = ChatOpenAI(openai_api_key=st.session_state["api_key"],
+        model_name=model)
+        k= 5
+        if 'entity_memory' not in st.session_state:
+                st.session_state.entity_memory = ConversationEntityMemory(
+                    llm=llmObj, k=k)
+                
+                # The ConversationChain object
+        Conversation = ConversationChain(
+                llm=llmObj,
+                prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE,
+                memory=st.session_state.entity_memory
+            )
+        user_input = st.text_input("You: ", st.session_state["input"],key="input",
+        placeholder="Your Chatbot friend! Ask away ...",label_visibility='hidden')
 
-    k= 5
-    if 'entity_memory' not in st.session_state:
-            st.session_state.entity_memory = ConversationEntityMemory(
-                llm=llmObj, k=k)
-            
-            # The ConversationChain object
-    Conversation = ConversationChain(
-            llm=llmObj,
-            prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE,
-            memory=st.session_state.entity_memory
-        )
-    user_input = st.text_input("You: ", st.session_state["input"],key="input",
-    placeholder="Your Chatbot friend! Ask away ...",label_visibility='hidden')
+        if user_input:
+            output = Conversation.run(input=user_input)
+            st.session_state.past.append(user_input)
+            st.session_state.generated.append(output)
 
-    if user_input:
-        output = Conversation.run(input=user_input)
-        st.session_state.past.append(user_input)
-        st.session_state.generated.append(output)
-
-    with st.expander("Conversation", expanded=True):
-        for i in range(len(st.session_state['generated'])-1, -1, -1):
-            st.info(st.session_state["past"][i], icon="🧐")
-            st.success(st.session_state["generated"][i], icon="🤖")
+        with st.expander("Conversation", expanded=True):
+            for i in range(len(st.session_state['generated'])-1, -1, -1):
+                st.info(st.session_state["past"][i], icon="🧐")
+                st.success(st.session_state["generated"][i], icon="🤖")
+    else :
+        st.write("Bro you have to provide api key!")
 
 if __name__ == '__main__':
     st.set_page_config(page_title="Chatbot",layout="centered")
