@@ -29,6 +29,7 @@ def main():
     if api_key:
         llmObj = ChatOpenAI(openai_api_key=st.session_state["api_key"],
         model_name=model)
+        st.write("llmObj has been created")
         k= 5
         if 'entity_memory' not in st.session_state:
                 st.session_state.entity_memory = ConversationEntityMemory(
@@ -40,12 +41,14 @@ def main():
                 prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE,
                 memory=st.session_state.entity_memory
             )
+        st.write("conversation has been created")
+
         st.header("Ask anything..")
         user_input = st.text_input("You: ", st.session_state["input"],key="input",
         placeholder="Your Chatbot friend! Ask away ...",label_visibility='hidden')
-
+        st.header(user_input)
         if user_input:
-            st.write("Running...")
+            st.header("Running...")
             output = Conversation.run(input=user_input)
             st.session_state.past.append(user_input)
             st.session_state.generated.append(output)
