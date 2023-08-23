@@ -17,7 +17,7 @@ def initializer():
         # To store the current user input
         st.session_state["input"] = ""
     if "api_key" not in st.session_state:
-        st.session_state["api_key"]= "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"
+        st.session_state["api_key"]= "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"
     return True
 
 
