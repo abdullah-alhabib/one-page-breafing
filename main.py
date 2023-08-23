@@ -22,7 +22,7 @@ def initializer():
 
 
 def main():
-    st.title("Prototype ChatBot🤖")
+    st.title("Bohakooom GPT")
     model = 'gpt-3.5-turbo'
     llmObj = ChatOpenAI(openai_api_key=st.session_state["api_key"],
     model_name=model)
