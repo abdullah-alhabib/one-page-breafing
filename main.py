@@ -7,59 +7,48 @@ from langchain.chat_models import ChatOpenAI
 
 
 def initializer():
-    if "generated" not in st.session_state:
-        # To store the model outputs
-        st.session_state["generated"] = []
-    if "past" not in st.session_state:
-        # To store the user inputs
-        st.session_state["past"] = []
-    if "input" not in st.session_state:
-        # To store the current user input
-        st.session_state["input"] = ""
-    if "api_key" not in st.session_state:
-        st.session_state["api_key"]= ""
+    if "messages" not in st.session_state:
+        st.session_state["messages"] = [{"role": "assistant", "content": "How can I help you?"}]
+    if "chatbot_api_key" not in st.session_state:
+        st.session_state["chatbot_api_key"] = ""
+                
     return True
 
 
 def main():
-    st.title("Bohakooom GPT")
-    model = 'gpt-3.5-turbo'
-    api_key = st.text_input(label="API Key",key="api_key", placeholder="Enter Your API key ",label_visibility='hidden', type="password")
-   
-    if api_key:
-        llmObj = ChatOpenAI(openai_api_key=st.session_state["api_key"],
-        model_name=model)
-        st.write("llmObj has been created")
-        k= 5
-        if 'entity_memory' not in st.session_state:
-                st.session_state.entity_memory = ConversationEntityMemory(
-                    llm=llmObj, k=k)
-                
-                # The ConversationChain object
-        Conversation = ConversationChain(
-                llm=llmObj,
-                prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE,
-                memory=st.session_state.entity_memory
-            )
-        st.write("conversation has been created")
+    st.title("💬 Bohakoom Chatbot") 
+    for msg in st.session_state.messages:
+        st.chat_message(msg["role"]).write(msg["content"])
 
-        st.header("Ask anything..")
-        user_input = st.text_input("You: ", st.session_state["input"],key="input",
-        placeholder="Your Chatbot friend! Ask away ...",label_visibility='hidden')
-        st.header(user_input)
-        if user_input:
-            st.header("Running...")
-            output = Conversation.run(input=user_input)
-            st.session_state.past.append(user_input)
-            st.session_state.generated.append(output)
+    if prompt:=st.chat_input():
+        if not openai_api_key:
+            st.info("Please add your OpenAI API key to continue.")
+            st.stop()
+        else :
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            st.chat_message("user").write(prompt)
+            output = Conversation.run(input=prompt)
+            st.session_state.messages.append({"role": "assistant", "content": output})
+            st.chat_message("assistant").write(output)
 
-        with st.expander("Conversation", expanded=True):
-            for i in range(len(st.session_state['generated'])-1, -1, -1):
-                st.info(st.session_state["past"][i], icon="🧐")
-                st.success(st.session_state["generated"][i], icon="🤖")
 if __name__ == '__main__':
     st.set_page_config(page_title="Chatbot",layout="centered")
+    with st.sidebar:
+        openai_api_key = st.text_input("OpenAI API Key", key="chatbot_api_key", type="password")
     session_initilizer= initializer()
-
-    if session_initilizer:
+    if st.session_state["chatbot_api_key"]!="":
+        model = 'gpt-3.5-turbo'
+        llmObj = ChatOpenAI(openai_api_key=st.session_state["chatbot_api_key"],
+            model_name=model)
+        k= 5
+        if 'entity_memory' not in st.session_state:
+                    st.session_state.entity_memory = ConversationEntityMemory(
+                        llm=llmObj, k=k)
+        Conversation = ConversationChain(
+                    llm=llmObj,
+                    prompt=ENTITY_MEMORY_CONVERSATION_TEMPLATE,
+                    memory=st.session_state.entity_memory
+                )
         main()
+    else:
+        st.title("Please provide API key to run the chatbot")
