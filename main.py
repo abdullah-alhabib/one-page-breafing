@@ -16,7 +16,7 @@ def initializer():
 
 
 def main():
-    st.title("💬 Bohakoom Chatbot") 
+    st.title("💬 simple Chatbot") 
     for msg in st.session_state.messages:
         st.chat_message(msg["role"]).write(msg["content"])
 
